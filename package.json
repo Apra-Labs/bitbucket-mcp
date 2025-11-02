@@ -5,7 +5,8 @@
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "bitbucket-mcp": "dist/index.js"
+    "bitbucket-mcp": "dist/index.js",
+    "bitbucket-cli": "dist/index-cli.js"
   },
   "files": [
     "dist",
@@ -13,7 +14,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc && chmod +x dist/index.js",
+    "build": "tsc && chmod +x dist/index.js dist/index-cli.js",
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
     "prepublishOnly": "npm run build",
@@ -48,8 +49,10 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.1.1",
+    "@types/yargs": "^17.0.34",
     "axios": "^1.6.5",
-    "winston": "^3.11.0"
+    "winston": "^3.11.0",
+    "yargs": "^18.0.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
