@@ -72,7 +72,9 @@ async function main() {
     console.error("  get-pipeline <workspace> <repo> <pipeline_uuid>");
     console.error("  get-pipeline-steps <workspace> <repo> <pipeline_uuid>");
     console.error("  get-step-logs <workspace> <repo> <pipeline_uuid> <step_uuid>");
+    console.error("  tail-step-log <workspace> <repo> <pipeline_uuid> <step_uuid> [bytes]");
     console.error("  run-pipeline <workspace> <repo> <branch> [custom_pipeline_name]");
+    console.error("  stop-pipeline <workspace> <repo> <pipeline_uuid>");
     console.error("  list-repos [workspace] [limit]");
     console.error("  get-repo <workspace> <repo>");
     console.error("  list-prs <workspace> <repo> [state] [limit]");
@@ -133,6 +135,17 @@ async function main() {
         break;
       }
 
+      case "tail-step-log": {
+        const [workspace, repo, pipeline_uuid, step_uuid, bytesStr] = args.slice(1);
+        if (!workspace || !repo || !pipeline_uuid || !step_uuid) {
+          throw new Error("Usage: tail-step-log <workspace> <repo> <pipeline_uuid> <step_uuid> [bytes]");
+        }
+        const bytes = bytesStr ? parseInt(bytesStr) : 2000;
+        const result = await client.getPipelineStepLogTail(workspace, repo, pipeline_uuid, step_uuid, bytes);
+        console.log(result); // Output as plain text, not JSON
+        break;
+      }
+
       case "run-pipeline": {
         const [workspace, repo, branch, custom_pipeline] = args.slice(1);
         if (!workspace || !repo || !branch) {
@@ -147,6 +160,16 @@ async function main() {
           target.selector_pattern = custom_pipeline;
         }
         const result = await client.runPipeline(workspace, repo, target);
+        console.log(JSON.stringify(result, null, 2));
+        break;
+      }
+
+      case "stop-pipeline": {
+        const [workspace, repo, pipeline_uuid] = args.slice(1);
+        if (!workspace || !repo || !pipeline_uuid) {
+          throw new Error("Usage: stop-pipeline <workspace> <repo> <pipeline_uuid>");
+        }
+        const result = await client.stopPipeline(workspace, repo, pipeline_uuid);
         console.log(JSON.stringify(result, null, 2));
         break;
       }

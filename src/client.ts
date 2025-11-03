@@ -570,6 +570,36 @@ export class BitbucketClient {
     }
   }
 
+  async getPipelineStepLogTail(
+    workspace: string,
+    repo_slug: string,
+    pipeline_uuid: string,
+    step_uuid: string,
+    bytes: number = 2000
+  ): Promise<string> {
+    try {
+      const encodedPipelineUuid = pipeline_uuid.startsWith("{")
+        ? pipeline_uuid
+        : `{${pipeline_uuid}}`;
+      const encodedStepUuid = step_uuid.startsWith("{")
+        ? step_uuid
+        : `{${step_uuid}}`;
+
+      const response = await this.api.get(
+        `/repositories/${workspace}/${repo_slug}/pipelines/${encodedPipelineUuid}/steps/${encodedStepUuid}/log`,
+        { 
+          responseType: "text",
+          headers: {
+            'Range': `bytes=-${bytes}`  // Negative offset = from end of file
+          }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return this.handleAxiosError(error, "getPipelineStepLogTail");
+    }
+  }
+
   // =========== BRANCHING MODEL OPERATIONS ===========
 
   async getRepositoryBranchingModel(workspace: string, repo_slug: string): Promise<any> {
