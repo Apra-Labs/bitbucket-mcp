@@ -470,7 +470,27 @@ export class BitbucketClient {
     variables?: Array<{ key: string; value: string; secured?: boolean }>
   ): Promise<any> {
     try {
-      const payload: any = { target };
+      // Transform target to match API format
+      const apiTarget: any = {
+        ref_type: target.ref_type,
+        ref_name: target.ref_name,
+      };
+
+      if (target.commit_hash) {
+        apiTarget.commit = { hash: target.commit_hash };
+      }
+
+      // Build selector object (API expects nested structure)
+      if (target.selector_type) {
+        apiTarget.selector = {
+          type: target.selector_type,
+        };
+        if (target.selector_pattern) {
+          apiTarget.selector.pattern = target.selector_pattern;
+        }
+      }
+
+      const payload: any = { target: apiTarget };
       if (variables && variables.length > 0) {
         payload.variables = variables;
       }
