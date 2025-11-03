@@ -79,6 +79,9 @@ async function main() {
     console.error("  get-repo <workspace> <repo>");
     console.error("  list-prs <workspace> <repo> [state] [limit]");
     console.error("  get-pr <workspace> <repo> <pr_id>");
+    console.error("  approve-pr <workspace> <repo> <pr_id>");
+    console.error("  merge-pr <workspace> <repo> <pr_id> [message] [strategy]");
+    console.error("  decline-pr <workspace> <repo> <pr_id> [message]");
     console.error("  get-branching-model <workspace> <repo>");
     process.exit(1);
   }
@@ -215,6 +218,42 @@ async function main() {
           throw new Error("Usage: get-pr <workspace> <repo> <pr_id>");
         }
         const result = await client.getPullRequest(workspace, repo, pr_id);
+        console.log(JSON.stringify(result, null, 2));
+        break;
+      }
+
+      case "approve-pr": {
+        const [workspace, repo, pr_id] = args.slice(1);
+        if (!workspace || !repo || !pr_id) {
+          throw new Error("Usage: approve-pr <workspace> <repo> <pr_id>");
+        }
+        const result = await client.approvePullRequest(workspace, repo, pr_id);
+        console.log(JSON.stringify(result, null, 2));
+        break;
+      }
+
+      case "merge-pr": {
+        const [workspace, repo, pr_id, message, strategy] = args.slice(1);
+        if (!workspace || !repo || !pr_id) {
+          throw new Error("Usage: merge-pr <workspace> <repo> <pr_id> [message] [strategy]");
+        }
+        const result = await client.mergePullRequest(
+          workspace,
+          repo,
+          pr_id,
+          message,
+          strategy as "merge-commit" | "squash" | "fast-forward" | undefined
+        );
+        console.log(JSON.stringify(result, null, 2));
+        break;
+      }
+
+      case "decline-pr": {
+        const [workspace, repo, pr_id, message] = args.slice(1);
+        if (!workspace || !repo || !pr_id) {
+          throw new Error("Usage: decline-pr <workspace> <repo> <pr_id> [message]");
+        }
+        const result = await client.declinePullRequest(workspace, repo, pr_id, message);
         console.log(JSON.stringify(result, null, 2));
         break;
       }
