@@ -419,7 +419,7 @@ export class BitbucketClient {
       params.sort = '-created_on';
 
       const filters: string[] = [];
-      if (status) filters.push(`state.name="${status}"`);
+      if (status) filters.push(`state.result.name="${status}"`);
       if (target_branch) filters.push(`target.ref_name="${target_branch}"`);
       if (trigger_type) filters.push(`trigger.type="${trigger_type}"`);
 
