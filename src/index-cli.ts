@@ -14,7 +14,7 @@ import os from "os";
  * Load credentials from multiple sources with priority:
  * 1. Project level: ./credentials.json or ./.bitbucket-credentials
  * 2. User level: ~/.bitbucket-credentials
- * 3. Skill level: ~/.claude/skills/bitbucket-pipeline-debug/credentials.json
+ * 3. Skill level: ~/.claude/skills/bitbucket-devops/credentials.json
  * 4. Environment variables (for backward compatibility)
  */
 function loadConfig(): BitbucketConfig {
@@ -25,7 +25,7 @@ function loadConfig(): BitbucketConfig {
     // User level
     path.join(os.homedir(), ".bitbucket-credentials"),
     // Skill level (lowest priority)
-    path.join(os.homedir(), ".claude", "skills", "bitbucket-pipeline-debug", "credentials.json"),
+    path.join(os.homedir(), ".claude", "skills", "bitbucket-devops", "credentials.json"),
   ];
 
   // Try to load from credential files
