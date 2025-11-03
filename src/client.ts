@@ -474,6 +474,7 @@ export class BitbucketClient {
       const apiTarget: any = {
         ref_type: target.ref_type,
         ref_name: target.ref_name,
+        type: "pipeline_ref_target",
       };
 
       if (target.commit_hash) {
