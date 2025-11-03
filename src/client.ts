@@ -415,6 +415,8 @@ export class BitbucketClient {
     try {
       const params: Record<string, string | number> = {};
       if (limit) params.pagelen = limit;
+      // Sort by newest first (descending created_on timestamp)
+      params.sort = '-created_on';
 
       const filters: string[] = [];
       if (status) filters.push(`state.name="${status}"`);
