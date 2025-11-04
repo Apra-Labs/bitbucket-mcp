@@ -35,27 +35,73 @@ function loadConfig(): BitbucketConfig {
         const content = fs.readFileSync(credPath, "utf-8");
         const creds = JSON.parse(content);
 
+        // VALIDATE user_email field
+        if (creds.user_email && creds.user_email.includes('@')) {
+          // Valid email format
+        } else if (creds.user_email) {
+          throw new Error(
+            `Invalid credentials in ${credPath}:\n` +
+            `  'user_email' must be an email address.\n` +
+            `  Got: "${creds.user_email}"\n` +
+            `  Expected format: "your-email@example.com"\n` +
+            `  Check your credentials.json file.`
+          );
+        } else if (!creds.user_email) {
+          throw new Error(
+            `Missing required field in ${credPath}:\n` +
+            `  'user_email' (your Bitbucket account email) is required.\n` +
+            `  Example: "user_email": "akhil@apra.in"\n` +
+            `  Get your credentials template from: credentials.json.template`
+          );
+        }
+
+        // VALIDATE username field (must NOT be an email)
+        if (creds.username && creds.username.includes('@')) {
+          throw new Error(
+            `Invalid credentials in ${credPath}:\n` +
+            `  'username' should be your Bitbucket username, not email.\n` +
+            `  Got: "${creds.username}" (this looks like an email)\n` +
+            `  Expected: Your workspace slug (e.g., "kumaakh")\n` +
+            `  Hint: Your username is typically the same as your workspace.\n` +
+            `  Fix: Change "username": "${creds.username}" to "username": "${creds.workspace || 'your-username'}"`
+          );
+        } else if (!creds.username) {
+          throw new Error(
+            `Missing required field in ${credPath}:\n` +
+            `  'username' (your Bitbucket username/workspace slug) is required.\n` +
+            `  Example: "username": "kumaakh"\n` +
+            `  This is used for git operations, not API calls.\n` +
+            `  It's typically the same as your workspace slug.`
+          );
+        }
+
         return {
           baseUrl: creds.url || creds.baseUrl || "https://api.bitbucket.org/2.0",
           token: creds.token,
-          username: creds.username,
+          username: creds.user_email,  // API authentication uses email
           password: creds.password || creds.app_password,
-          defaultWorkspace: creds.workspace || creds.defaultWorkspace,
+          defaultWorkspace: creds.workspace || creds.username,
+          gitUsername: creds.username,  // Git operations use username
         };
       } catch (error) {
+        // Re-throw validation errors with full message
+        if (error instanceof Error && error.message.includes('Invalid credentials')) {
+          throw error;
+        }
         console.error(`Warning: Failed to parse credentials from ${credPath}:`, error);
         continue;
       }
     }
   }
 
-  // Fallback to environment variables
+  // Fallback to environment variables (no validation for env vars for now)
   return {
     baseUrl: process.env.BITBUCKET_URL || "https://api.bitbucket.org/2.0",
     token: process.env.BITBUCKET_TOKEN,
-    username: process.env.BITBUCKET_USERNAME,
+    username: process.env.BITBUCKET_USERNAME,  // Assumes email in env var
     password: process.env.BITBUCKET_PASSWORD,
     defaultWorkspace: process.env.BITBUCKET_WORKSPACE,
+    gitUsername: process.env.BITBUCKET_WORKSPACE,  // Use workspace for git
   };
 }
 

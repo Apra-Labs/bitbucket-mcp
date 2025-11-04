@@ -112,10 +112,11 @@ export interface InlineCommentInline {
 export interface BitbucketConfig {
   baseUrl: string;
   token?: string;
-  username?: string;
+  username?: string;  // For API authentication (email address)
   password?: string;
   defaultWorkspace?: string;
   allowDangerousCommands?: boolean;
+  gitUsername?: string;  // For git operations (workspace slug, not email)
 }
 
 export interface PaginatedResponse<T> {
